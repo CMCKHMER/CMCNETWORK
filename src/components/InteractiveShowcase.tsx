@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { 
   Sparkles, FileText, CheckCircle2, 
   RotateCcw, Download, Printer, Copy, Check, 
@@ -6,6 +6,22 @@ import {
   Sliders, ArrowRight
 } from 'lucide-react';
 import { INTERACTIVE_TOEFL_SAMPLES } from '../data/landingData';
+import { useDelayedReset } from '../hooks/useDelayedReset';
+
+/** Runs a callback after a delay and cancels the timer on unmount. */
+function useTimeout() {
+  const timerRef = useRef<number | null>(null);
+  const clear = () => {
+    if (timerRef.current !== null) window.clearTimeout(timerRef.current);
+    timerRef.current = null;
+  };
+  const start = (fn: () => void, ms: number) => {
+    clear();
+    timerRef.current = window.setTimeout(fn, ms);
+  };
+  useEffect(() => clear, []);
+  return { start, clear };
+}
 
 export const InteractiveShowcase: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'grader' | 'generator' | 'roster'>('grader');
@@ -17,8 +33,9 @@ export const InteractiveShowcase: React.FC = () => {
   const [gradedResult, setGradedResult] = useState<typeof INTERACTIVE_TOEFL_SAMPLES[0]['aiScore'] | null>(
     INTERACTIVE_TOEFL_SAMPLES[0].aiScore
   );
-  const [copiedFeedback, setCopiedFeedback] = useState(false);
+  const [copiedFeedback, triggerCopied] = useDelayedReset(2000);
   const [approvedStatus, setApprovedStatus] = useState(false);
+  const gradingTimeout = useTimeout();
 
   const handleSelectSample = (idx: number) => {
     setSelectedSampleIndex(idx);
@@ -30,7 +47,7 @@ export const InteractiveShowcase: React.FC = () => {
   const handleRunGrading = () => {
     setIsGrading(true);
     setApprovedStatus(false);
-    setTimeout(() => {
+    gradingTimeout.start(() => {
       // Generate dynamic scores based on length/content
       const wordCount = customAnswer.trim().split(/\s+/).length;
       const isLongEnough = wordCount >= 10;
@@ -51,18 +68,18 @@ export const InteractiveShowcase: React.FC = () => {
   const [genTopic, setGenTopic] = useState<'Prefix & Suffix' | 'Reading Comp' | 'Phonics Blends'>('Prefix & Suffix');
   const [showAnswerKey, setShowAnswerKey] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [downloadSuccess, setDownloadSuccess] = useState(false);
+  const [downloadSuccess, triggerDownloadSuccess] = useDelayedReset(2500);
+  const generateTimeout = useTimeout();
 
   const handleGenerateWorksheet = () => {
     setIsGenerating(true);
-    setTimeout(() => {
+    generateTimeout.start(() => {
       setIsGenerating(false);
     }, 500);
   };
 
   const handleSimulatedDownload = () => {
-    setDownloadSuccess(true);
-    setTimeout(() => setDownloadSuccess(false), 2500);
+    triggerDownloadSuccess();
   };
 
   // --- TAB 3: ROSTER STATE ---
@@ -75,6 +92,7 @@ export const InteractiveShowcase: React.FC = () => {
     { id: 5, name: 'Noah Johnson', grade: '64%', toeflScore: 'Pre-A1', status: 'Intervention', prefixSkill: '52%', struggling: true, lastActive: '2h ago' }
   ]);
   const [assignedIntervention, setAssignedIntervention] = useState<string | null>(null);
+  const interventionTimeout = useTimeout();
 
   const filteredRoster = filterStruggling 
     ? rosterStudents.filter(s => s.struggling)
@@ -102,9 +120,14 @@ export const InteractiveShowcase: React.FC = () => {
           </p>
 
           {/* Interactive Mode Tabs */}
-          <div className="inline-flex p-1.5 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl max-w-full overflow-x-auto">
+          <div role="tablist" aria-label="Product demos" className="inline-flex p-1.5 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl max-w-full overflow-x-auto">
             <button
               onClick={() => setActiveTab('grader')}
+              role="tab"
+              id="showcase-tab-grader"
+              aria-selected={activeTab === 'grader'}
+              aria-controls="showcase-panel-grader"
+              tabIndex={activeTab === 'grader' ? 0 : -1}
               className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition cursor-pointer shrink-0 ${
                 activeTab === 'grader'
                   ? 'bg-gradient-to-r from-cyan-500 to-indigo-600 text-white shadow-lg shadow-cyan-500/20'
@@ -117,6 +140,11 @@ export const InteractiveShowcase: React.FC = () => {
 
             <button
               onClick={() => setActiveTab('generator')}
+              role="tab"
+              id="showcase-tab-generator"
+              aria-selected={activeTab === 'generator'}
+              aria-controls="showcase-panel-generator"
+              tabIndex={activeTab === 'generator' ? 0 : -1}
               className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition cursor-pointer shrink-0 ${
                 activeTab === 'generator'
                   ? 'bg-gradient-to-r from-cyan-500 to-indigo-600 text-white shadow-lg shadow-cyan-500/20'
@@ -129,6 +157,11 @@ export const InteractiveShowcase: React.FC = () => {
 
             <button
               onClick={() => setActiveTab('roster')}
+              role="tab"
+              id="showcase-tab-roster"
+              aria-selected={activeTab === 'roster'}
+              aria-controls="showcase-panel-roster"
+              tabIndex={activeTab === 'roster' ? 0 : -1}
               className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition cursor-pointer shrink-0 ${
                 activeTab === 'roster'
                   ? 'bg-gradient-to-r from-cyan-500 to-indigo-600 text-white shadow-lg shadow-cyan-500/20'
@@ -143,7 +176,7 @@ export const InteractiveShowcase: React.FC = () => {
 
         {/* Tab 1: AI AUTO GRADER SIMULATOR */}
         {activeTab === 'grader' && (
-          <div className="rounded-3xl border border-slate-800 bg-slate-900/80 backdrop-blur-xl shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 gap-0 animate-in fade-in duration-300">
+          <div role="tabpanel" id="showcase-panel-grader" aria-labelledby="showcase-tab-grader" tabIndex={-1} className="rounded-3xl border border-slate-800 bg-slate-900/80 backdrop-blur-xl shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 gap-0 animate-in fade-in duration-300">
             
             {/* Left Column: Input and Sample Selector */}
             <div className="lg:col-span-7 p-6 sm:p-8 border-b lg:border-b-0 lg:border-r border-slate-800 flex flex-col justify-between space-y-6">
@@ -169,6 +202,7 @@ export const InteractiveShowcase: React.FC = () => {
                       <button
                         key={sample.id}
                         onClick={() => handleSelectSample(idx)}
+                        aria-pressed={selectedSampleIndex === idx}
                         className={`text-xs px-3 py-1.5 rounded-lg border font-medium transition cursor-pointer ${
                           selectedSampleIndex === idx
                             ? 'bg-cyan-950/80 border-cyan-500 text-cyan-300'
@@ -194,7 +228,7 @@ export const InteractiveShowcase: React.FC = () => {
                 {/* Student Answer Textarea */}
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
-                    <label className="text-xs font-semibold text-slate-300">
+                    <label htmlFor="student-response-input" className="text-xs font-semibold text-slate-300">
                       Student Written Response (Editable for testing):
                     </label>
                     <span className="text-[11px] text-slate-500">
@@ -202,6 +236,7 @@ export const InteractiveShowcase: React.FC = () => {
                     </span>
                   </div>
                   <textarea
+                    id="student-response-input"
                     rows={4}
                     value={customAnswer}
                     onChange={(e) => setCustomAnswer(e.target.value)}
@@ -234,7 +269,7 @@ export const InteractiveShowcase: React.FC = () => {
             </div>
 
             {/* Right Column: AI Scorecard & Diagnostic Breakdown */}
-            <div className="lg:col-span-5 p-6 sm:p-8 bg-slate-950/50 flex flex-col justify-between space-y-6">
+            <div role="status" aria-live="polite" aria-label="AI grading results" className="lg:col-span-5 p-6 sm:p-8 bg-slate-950/50 flex flex-col justify-between space-y-6">
               
               <div>
                 <div className="flex items-center justify-between border-b border-slate-800 pb-4 mb-4">
@@ -307,8 +342,7 @@ export const InteractiveShowcase: React.FC = () => {
                       onClick={() => {
                         if (gradedResult) {
                           navigator.clipboard?.writeText(gradedResult.feedback);
-                          setCopiedFeedback(true);
-                          setTimeout(() => setCopiedFeedback(false), 2000);
+                          triggerCopied();
                         }
                       }}
                       className="text-[11px] text-cyan-400 hover:text-cyan-300 flex items-center gap-1"
@@ -351,7 +385,7 @@ export const InteractiveShowcase: React.FC = () => {
 
         {/* Tab 2: WORKSHEET GENERATOR SIMULATOR */}
         {activeTab === 'generator' && (
-          <div className="rounded-3xl border border-slate-800 bg-slate-900/80 backdrop-blur-xl shadow-2xl overflow-hidden p-6 sm:p-8 animate-in fade-in duration-300">
+          <div role="tabpanel" id="showcase-panel-generator" aria-labelledby="showcase-tab-generator" tabIndex={-1} className="rounded-3xl border border-slate-800 bg-slate-900/80 backdrop-blur-xl shadow-2xl overflow-hidden p-6 sm:p-8 animate-in fade-in duration-300">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
               
               {/* Left Controls */}
@@ -376,6 +410,7 @@ export const InteractiveShowcase: React.FC = () => {
                           setGenGrade(grade);
                           handleGenerateWorksheet();
                         }}
+                        aria-pressed={genGrade === grade}
                         className={`text-xs py-2 px-2 rounded-xl border text-center font-semibold transition cursor-pointer ${
                           genGrade === grade
                             ? 'bg-cyan-950 border-cyan-500 text-cyan-300'
@@ -401,6 +436,7 @@ export const InteractiveShowcase: React.FC = () => {
                           setGenTopic(topic);
                           handleGenerateWorksheet();
                         }}
+                        aria-pressed={genTopic === topic}
                         className={`text-xs py-2.5 px-3 rounded-xl border text-left font-semibold flex items-center justify-between transition cursor-pointer ${
                           genTopic === topic
                             ? 'bg-indigo-950/80 border-indigo-500 text-indigo-300'
@@ -419,6 +455,9 @@ export const InteractiveShowcase: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold text-slate-300">Show Teacher Answer Key</span>
                     <button
+                      role="switch"
+                      aria-checked={showAnswerKey}
+                      aria-label="Show teacher answer key"
                       onClick={() => setShowAnswerKey(!showAnswerKey)}
                       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
                         showAnswerKey ? 'bg-cyan-500' : 'bg-slate-700'
@@ -600,7 +639,7 @@ export const InteractiveShowcase: React.FC = () => {
 
         {/* Tab 3: CLASSROOM DIAGNOSTIC ROSTER */}
         {activeTab === 'roster' && (
-          <div className="rounded-3xl border border-slate-800 bg-slate-900/80 backdrop-blur-xl shadow-2xl overflow-hidden p-6 sm:p-8 animate-in fade-in duration-300">
+          <div role="tabpanel" id="showcase-panel-roster" aria-labelledby="showcase-tab-roster" tabIndex={-1} className="rounded-3xl border border-slate-800 bg-slate-900/80 backdrop-blur-xl shadow-2xl overflow-hidden p-6 sm:p-8 animate-in fade-in duration-300">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800">
               <div>
                 <h3 className="text-lg font-bold text-white flex items-center gap-2">
@@ -617,6 +656,7 @@ export const InteractiveShowcase: React.FC = () => {
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setFilterStruggling(!filterStruggling)}
+                  aria-pressed={filterStruggling}
                   className={`px-3 py-1.5 rounded-xl text-xs font-semibold border flex items-center gap-1.5 transition cursor-pointer ${
                     filterStruggling 
                       ? 'bg-amber-500/20 border-amber-500 text-amber-300' 
@@ -693,7 +733,7 @@ export const InteractiveShowcase: React.FC = () => {
                           <button
                             onClick={() => {
                               setAssignedIntervention(student.name);
-                              setTimeout(() => setAssignedIntervention(null), 3000);
+                              interventionTimeout.start(() => setAssignedIntervention(null), 3000);
                             }}
                             className="px-2.5 py-1 rounded-lg bg-cyan-950 hover:bg-cyan-900 text-cyan-300 border border-cyan-800 font-medium text-[11px] transition inline-flex items-center gap-1 active:scale-95"
                           >
