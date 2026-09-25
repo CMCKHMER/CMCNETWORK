@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Sparkles, ArrowRight, CheckCircle2, ShieldCheck, Mail } from 'lucide-react';
-import confetti from 'canvas-confetti';
 
 interface CtaSectionProps {
   onSuccess: () => void;
@@ -9,23 +8,31 @@ interface CtaSectionProps {
 export const CtaSection: React.FC<CtaSectionProps> = ({ onSuccess }) => {
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const successTimerRef = useRef<number | null>(null);
+
+  useEffect(() => () => {
+    if (successTimerRef.current !== null) window.clearTimeout(successTimerRef.current);
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
 
-    try {
-      confetti({
-        particleCount: 80,
-        spread: 70,
-        origin: { y: 0.6 }
+    import('canvas-confetti')
+      .then(({ default: confetti }) => {
+        confetti({
+          particleCount: 80,
+          spread: 70,
+          origin: { y: 0.6 }
+        });
+      })
+      .catch(() => {
+        // Confetti is decorative only — ignore failures.
       });
-    } catch {
-      // Fallback
-    }
 
     setIsSubmitted(true);
-    setTimeout(() => {
+    successTimerRef.current = window.setTimeout(() => {
+      successTimerRef.current = null;
       onSuccess();
     }, 1200);
   };

@@ -1,12 +1,22 @@
 import React, { useState } from 'react';
 import { X, Volume2, Sparkles, Trophy, ArrowRight, RotateCcw } from 'lucide-react';
-import confetti from 'canvas-confetti';
+import { useModalA11y } from '../hooks/useModalA11y';
+import { useDelayedReset } from '../hooks/useDelayedReset';
 
 interface StudentDemoModalProps {
   isOpen: boolean;
   onClose: () => void;
   onOpenTeacherPass: () => void;
 }
+
+const fireConfetti = async (options: import('canvas-confetti').Options) => {
+  try {
+    const { default: confetti } = await import('canvas-confetti');
+    confetti(options);
+  } catch {
+    // Confetti is decorative only — ignore failures.
+  }
+};
 
 export const StudentDemoModal: React.FC<StudentDemoModalProps> = ({
   isOpen,
@@ -15,8 +25,10 @@ export const StudentDemoModal: React.FC<StudentDemoModalProps> = ({
 }) => {
   const [q1Answer, setQ1Answer] = useState<string | null>(null);
   const [q2Answer, setQ2Answer] = useState<string | null>(null);
-  const [audioPlaying, setAudioPlaying] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [audioPlaying, triggerAudioReset, resetAudio] = useDelayedReset(4000);
+
+  const dialogRef = useModalA11y(isOpen, onClose);
 
   if (!isOpen) return null;
 
@@ -31,24 +43,19 @@ export const StudentDemoModal: React.FC<StudentDemoModalProps> = ({
   const handleFinishDemo = () => {
     setSubmitted(true);
     if (q1Answer === 'un-' && q2Answer === 'b') {
-      try {
-        confetti({
-          particleCount: 70,
-          spread: 60,
-          origin: { y: 0.6 }
-        });
-      } catch {
-        // Fallback
-      }
+      void fireConfetti({
+        particleCount: 70,
+        spread: 60,
+        origin: { y: 0.6 }
+      });
     }
   };
 
   const handlePlayVoice = () => {
-    setAudioPlaying(true);
+    triggerAudioReset();
     const utterance = new SpeechSynthesisUtterance("Listen carefully. The prefix 'un-' creates the opposite meaning of a base word, such as happy to unhappy.");
-    utterance.onend = () => setAudioPlaying(false);
+    utterance.onend = () => resetAudio();
     window.speechSynthesis?.speak(utterance);
-    setTimeout(() => setAudioPlaying(false), 4000);
   };
 
   const resetQuiz = () => {
@@ -62,23 +69,31 @@ export const StudentDemoModal: React.FC<StudentDemoModalProps> = ({
       {/* Backdrop */}
       <div 
         onClick={onClose}
+        aria-hidden="true"
         className="fixed inset-0 bg-slate-950/85 backdrop-blur-md animate-in fade-in duration-200"
       />
 
       {/* Modal Container */}
-      <div className="relative w-full max-w-2xl bg-slate-900 border border-slate-700/80 rounded-3xl p-6 sm:p-8 shadow-2xl z-10 max-h-[92vh] overflow-y-auto animate-in zoom-in-95 duration-200">
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="student-demo-title"
+        tabIndex={-1}
+        className="relative w-full max-w-2xl bg-slate-900 border border-slate-700/80 rounded-3xl p-6 sm:p-8 shadow-2xl z-10 max-h-[92vh] overflow-y-auto animate-in zoom-in-95 duration-200"
+      >
         
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-slate-800 mb-6">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-indigo-600 flex items-center justify-center text-white font-bold">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-indigo-600 flex items-center justify-center text-white font-bold" aria-hidden="true">
               🎓
             </div>
             <div>
               <span className="text-[10px] uppercase font-bold tracking-wider text-amber-400 bg-amber-950 px-2 py-0.5 rounded border border-amber-800">
                 Live Student Portal Demo
               </span>
-              <h3 className="text-lg font-bold text-white mt-0.5">
+              <h3 id="student-demo-title" className="text-lg font-bold text-white mt-0.5">
                 TOEFL Junior & Morphology Challenge
               </h3>
             </div>
@@ -87,6 +102,7 @@ export const StudentDemoModal: React.FC<StudentDemoModalProps> = ({
           <button
             onClick={onClose}
             className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
+            aria-label="Close demo"
           >
             <X className="w-5 h-5" />
           </button>
@@ -103,7 +119,8 @@ export const StudentDemoModal: React.FC<StudentDemoModalProps> = ({
                   className={`p-2 rounded-xl text-white transition ${
                     audioPlaying ? 'bg-cyan-500 animate-pulse' : 'bg-slate-800 hover:bg-slate-700'
                   }`}
-                  title="Play Teacher Audio Prompt"
+                  aria-pressed={audioPlaying}
+                  aria-label={audioPlaying ? 'Teacher audio prompt playing' : 'Play teacher audio prompt'}
                 >
                   <Volume2 className="w-4 h-4" />
                 </button>
@@ -130,6 +147,7 @@ export const StudentDemoModal: React.FC<StudentDemoModalProps> = ({
                   <button
                     key={prefix}
                     onClick={() => handleSelectQ1(prefix)}
+                    aria-pressed={q1Answer === prefix}
                     className={`py-2 px-3 rounded-xl border text-xs font-bold font-mono transition cursor-pointer ${
                       q1Answer === prefix
                         ? 'bg-cyan-500 text-slate-950 border-cyan-400 shadow-md'
@@ -164,6 +182,7 @@ export const StudentDemoModal: React.FC<StudentDemoModalProps> = ({
                   <button
                     key={opt.key}
                     onClick={() => handleSelectQ2(opt.key)}
+                    aria-pressed={q2Answer === opt.key}
                     className={`w-full text-left p-2.5 rounded-xl border text-xs font-medium transition cursor-pointer flex items-center gap-2 ${
                       q2Answer === opt.key
                         ? 'bg-indigo-500 text-white border-indigo-400 shadow-md'
@@ -198,7 +217,7 @@ export const StudentDemoModal: React.FC<StudentDemoModalProps> = ({
           </div>
         ) : (
           /* Result Card */
-          <div className="text-center py-6 space-y-5">
+          <div className="text-center py-6 space-y-5" role="status" aria-live="polite">
             <div className="w-16 h-16 rounded-full bg-cyan-500/20 border border-cyan-500/40 text-cyan-400 flex items-center justify-center mx-auto">
               <Trophy className="w-8 h-8 text-amber-400" />
             </div>

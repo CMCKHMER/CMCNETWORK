@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   X, Search, Sparkles, GraduationCap, FileSpreadsheet, 
   UploadCloud, Type, Users, BarChart3, Gamepad2, 
   Baby, BookOpen, Languages, ArrowUpRight, CheckCircle2
 } from 'lucide-react';
 import { QUICK_LINKS } from '../data/landingData';
+import { useModalA11y } from '../hooks/useModalA11y';
 
 interface QuickDrawerProps {
   isOpen: boolean;
@@ -19,22 +20,8 @@ export const QuickDrawer: React.FC<QuickDrawerProps> = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Close on escape key
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-      window.addEventListener('keydown', handleKeyDown);
-    } else {
-      document.body.style.overflow = 'auto';
-    }
-    return () => {
-      document.body.style.overflow = 'auto';
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isOpen, onClose]);
+  // Escape-to-close, scroll lock, and focus management.
+  const drawerRef = useModalA11y(isOpen, onClose);
 
   const getIcon = (iconName: string) => {
     const props = { className: "w-4 h-4 text-cyan-400 group-hover:scale-110 transition-transform" };
@@ -67,11 +54,19 @@ export const QuickDrawer: React.FC<QuickDrawerProps> = ({
       {/* Backdrop */}
       <div 
         onClick={onClose}
+        aria-hidden="true"
         className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm transition-opacity animate-in fade-in duration-200"
       />
 
       {/* Drawer Panel */}
-      <div className="relative w-full max-w-md bg-slate-900/95 border-r border-slate-800 shadow-2xl flex flex-col z-10 backdrop-blur-xl animate-in slide-in-from-left duration-300">
+      <div
+        ref={drawerRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Quick Links command center"
+        tabIndex={-1}
+        className="relative w-full max-w-md bg-slate-900/95 border-r border-slate-800 shadow-2xl flex flex-col z-10 backdrop-blur-xl animate-in slide-in-from-left duration-300"
+      >
         
         {/* Header */}
         <div className="p-5 border-b border-slate-800/80 flex items-center justify-between bg-slate-950/60">
@@ -103,8 +98,12 @@ export const QuickDrawer: React.FC<QuickDrawerProps> = ({
         <div className="p-4 border-b border-slate-800/60 bg-slate-900/40">
           <div className="relative">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <label htmlFor="quick-drawer-search" className="sr-only">
+              Search teacher tools
+            </label>
             <input
-              type="text"
+              id="quick-drawer-search"
+              type="search"
               placeholder="Search tools, TOEFL, worksheets..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -125,7 +124,7 @@ export const QuickDrawer: React.FC<QuickDrawerProps> = ({
         {/* Links List */}
         <div className="flex-1 overflow-y-auto p-4 space-y-2">
           {filteredLinks.length === 0 ? (
-            <div className="py-12 text-center">
+            <div className="py-12 text-center" role="status">
               <p className="text-sm text-slate-400">No matching teacher tools found.</p>
               <button
                 onClick={() => setSearchTerm('')}
