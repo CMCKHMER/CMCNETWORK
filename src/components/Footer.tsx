@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, Shield, Heart, Send, Check } from 'lucide-react';
+import { Sparkles, Shield, Heart, Send, Check, Lock } from 'lucide-react';
 
 interface FooterProps {
   onOpenQuickLinks: () => void;
@@ -23,10 +23,10 @@ export const Footer: React.FC<FooterProps> = ({ onOpenQuickLinks, onOpenTeacherP
   return (
     <footer className="bg-slate-950 border-t border-slate-800 text-slate-400 text-xs pt-16 pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
         {/* Top Newsletter & Brand Bar */}
         <div className="pb-12 border-b border-slate-800/80 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          
+
           <div className="lg:col-span-6 space-y-3">
             <div className="flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 via-indigo-600 to-sky-400 flex items-center justify-center font-black text-white text-sm shadow-md shadow-cyan-500/20">
@@ -52,7 +52,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenQuickLinks, onOpenTeacherP
                   Free Worksheets Every Friday
                 </span>
               </div>
-              
+
               {newsletterSubscribed ? (
                 <div className="p-2.5 rounded-xl bg-emerald-950 border border-emerald-800 text-emerald-300 text-xs font-semibold flex items-center gap-2">
                   <Check className="w-4 h-4" />
@@ -84,7 +84,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenQuickLinks, onOpenTeacherP
 
         {/* Links Grid */}
         <div className="py-12 grid grid-cols-2 md:grid-cols-4 gap-8">
-          
+
           {/* Col 1 */}
           <div className="space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-wider text-white">Teacher Tools</h4>
@@ -196,19 +196,26 @@ export const Footer: React.FC<FooterProps> = ({ onOpenQuickLinks, onOpenTeacherP
         </div>
 
         {/* Bottom copyright */}
-        <div className="pt-8 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500">
-          <div className="flex items-center gap-1">
+        <div className="pt-8 border-t border-slate-800/80 flex flex-col lg:flex-row items-center justify-between gap-4 text-[11px] text-slate-500">
+          <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-1.5 text-center sm:text-left">
             <span>© 2026 Creative Minds Network (CMC Network Hub). Empowering teachers with</span>
             <Heart className="w-3 h-3 text-rose-500 fill-rose-500 inline" />
             <span>worldwide.</span>
           </div>
 
-          <div className="flex items-center gap-4">
-            <a href="#" className="hover:text-slate-300">Privacy Policy</a>
-            <span>•</span>
-            <a href="#" className="hover:text-slate-300">Student Data Rights</a>
-            <span>•</span>
-            <a href="#" className="hover:text-slate-300">System Status (99.98%)</a>
+          <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 text-center">
+            <div className="flex items-center gap-1.5 text-slate-400">
+              <Lock className="w-3 h-3 text-cyan-400" />
+              <span>All code, design & content are proprietary. Unauthorized copying is prohibited.</span>
+            </div>
+            <div className="hidden sm:block text-slate-700">|</div>
+            <div className="flex items-center gap-4">
+              <a href="#" className="hover:text-slate-300">Privacy Policy</a>
+              <span>•</span>
+              <a href="#" className="hover:text-slate-300">Student Data Rights</a>
+              <span>•</span>
+              <a href="#" className="hover:text-slate-300">System Status (99.98%)</a>
+            </div>
           </div>
         </div>
 
