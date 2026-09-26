@@ -248,11 +248,11 @@ export default function App() {
     const [isPressed, setIsPressed] = useState(false);
 
     const variants = {
-      primary: 'bg-gradient-to-b from-indigo-400 to-indigo-600 hover:from-indigo-300 hover:to-indigo-500 text-white shadow-[0_6px_0_0_#3730a3,0_8px_20px_rgba(79,70,229,0.4)] hover:shadow-[0_4px_0_0_#3730a3,0_6px_15px_rgba(79,70,229,0.5)]',
-      secondary: 'bg-gradient-to-b from-slate-500 to-slate-700 hover:from-slate-400 hover:to-slate-600 text-white shadow-[0_6px_0_0_#1e293b,0_8px_20px_rgba(51,65,85,0.4)] hover:shadow-[0_4px_0_0_#1e293b,0_6px_15px_rgba(51,65,85,0.5)]',
-      success: 'bg-gradient-to-b from-green-400 to-green-600 hover:from-green-300 hover:to-green-500 text-white shadow-[0_6px_0_0_#166534,0_8px_20px_rgba(34,197,94,0.4)] hover:shadow-[0_4px_0_0_#166534,0_6px_15px_rgba(34,197,94,0.5)]',
-      danger: 'bg-gradient-to-b from-red-400 to-red-600 hover:from-red-300 hover:to-red-500 text-white shadow-[0_6px_0_0_#991b1b,0_8px_20px_rgba(239,68,68,0.4)] hover:shadow-[0_4px_0_0_#991b1b,0_6px_15px_rgba(239,68,68,0.5)]',
-      chalk: 'bg-gradient-to-b from-amber-100 to-amber-200 hover:from-amber-50 hover:to-amber-100 text-amber-900 shadow-[0_6px_0_0_#92400e,0_8px_20px_rgba(146,64,14,0.3)] hover:shadow-[0_4px_0_0_#92400e,0_6px_15px_rgba(146,64,14,0.4)]',
+      primary: 'bg-gradient-to-r from-cyan-500 via-sky-500 to-indigo-500 hover:from-cyan-400 hover:via-sky-400 hover:to-indigo-400 text-white shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/40',
+      secondary: 'bg-gradient-to-b from-slate-600 to-slate-800 hover:from-slate-500 hover:to-slate-700 border border-slate-600/60 text-white shadow-lg shadow-black/30',
+      success: 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/40',
+      danger: 'bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-400 hover:to-red-500 text-white shadow-lg shadow-rose-500/30',
+      chalk: 'bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-400 hover:to-fuchsia-400 text-white shadow-lg shadow-violet-500/30',
     };
 
     const handleClick = () => {
@@ -269,7 +269,7 @@ export default function App() {
         onMouseDown={() => !disabled && setIsPressed(true)}
         onMouseUp={() => setIsPressed(false)}
         disabled={disabled}
-        className={`relative font-bold py-3 px-6 rounded-xl transition-all duration-150 active:translate-y-[4px] ${
+        className={`relative font-display font-bold py-3 px-6 rounded-xl transition-all duration-150 active:translate-y-[4px] ${
           isPressed ? 'translate-y-[4px]' : ''
         } ${variants[variant]} ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:-translate-y-[2px]'} ${className}`}
         style={{ transform: isPressed ? 'translateY(4px)' : undefined }}
@@ -281,70 +281,68 @@ export default function App() {
 
   // ===== RENDER FUNCTIONS =====
 
-  const renderMenu = () => (
-    <div className="relative overflow-hidden" style={{
-      background: 'linear-gradient(180deg, #1a3a2a 0%, #0f2a1a 50%, #1a1a2e 100%)',
-    }}>
-      {/* Chalkboard texture overlay */}
-      <div className="absolute inset-0 opacity-20" style={{
-        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-      }}></div>
+  // Page backgrounds follow the landing page's design language:
+  // deep slate base with soft cyan / indigo / violet glow orbs.
+  const SlideBackground = () => (
+    <>
+      <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-[#0a1122] to-slate-950" />
+      <div className="absolute top-0 left-1/4 w-[420px] h-[420px] bg-cyan-500/10 rounded-full blur-[120px] animate-pulse-soft pointer-events-none" />
+      <div className="absolute bottom-0 right-1/4 w-[420px] h-[420px] bg-indigo-500/10 rounded-full blur-[120px] animate-pulse-soft pointer-events-none" style={{ animationDelay: '1.5s' }} />
+    </>
+  );
 
-      {/* Wooden frame border */}
-      <div className="absolute inset-0 pointer-events-none border-[12px] border-amber-900/60 rounded-none" style={{
-        boxShadow: 'inset 0 0 30px rgba(0,0,0,0.5)',
-      }}></div>
+  const renderMenu = () => (
+    <div className="relative overflow-hidden bg-slate-950">
+      <SlideBackground />
 
       {/* Confetti */}
       <Confetti active={showConfetti} count={40} onComplete={() => setShowConfetti(false)} />
 
       <div className="relative z-10 max-w-6xl mx-auto px-4 py-10">
-        {/* Header - Chalkboard style */}
+        {/* Header — matches the landing section rhythm (eyebrow pill + display title) */}
         <div className={`text-center mb-10 transition-all duration-700 ${menuAnim ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-10'}`}>
-          {/* Chalk-style title */}
+          <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-bold tracking-widest uppercase mb-5">
+            ⏳ Verb Tenses Arcade
+          </span>
           <div className="relative inline-block">
-            <h1 className="text-5xl md:text-7xl font-bold text-white/90 tracking-wide" style={{
-              fontFamily: 'Georgia, serif',
-              textShadow: '2px 2px 4px rgba(0,0,0,0.5), 0 0 10px rgba(255,255,255,0.1)',
-              letterSpacing: '0.05em',
-            }}>
+            <h1 className="font-display text-5xl md:text-7xl font-bold text-white text-glow tracking-wide">
               ✏️ Tense Master
             </h1>
-            <div className="absolute -bottom-2 left-0 right-0 h-[3px] bg-white/30 rounded"></div>
+            <div className="absolute -bottom-2 left-0 right-0 h-[3px] bg-gradient-to-r from-cyan-400 via-sky-400 to-indigo-400 rounded-full"></div>
           </div>
-          <p className="text-lg text-emerald-200/70 mt-4 font-serif italic">
+          <p className="text-lg text-slate-400 mt-5 italic">
             "Learn English Verb Tenses — From Basics to Expert"
           </p>
         </div>
 
-        {/* Stats Bar - Wooden desk style */}
+        {/* Stats Bar — glass pills matching the navbar style */}
         <div className={`flex items-center justify-center gap-4 flex-wrap mb-8 transition-all duration-700 delay-200 ${menuAnim ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
-          <div className="bg-amber-800/40 backdrop-blur-sm rounded-xl px-5 py-3 border-2 border-amber-700/50 shadow-[0_4px_0_0_#451a03] transition-transform hover:scale-105">
+          <div className="glass-panel-light rounded-xl px-5 py-3 border border-slate-700/60 transition-transform hover:scale-105">
             <span className="text-2xl font-bold text-yellow-300" style={{ textShadow: '0 0 10px rgba(253,224,71,0.5)' }}>⭐ {totalXP}</span>
-            <span className="text-amber-300/70 ml-2 text-sm">XP</span>
+            <span className="text-slate-400 ml-2 text-sm">XP</span>
           </div>
-          <div className="bg-amber-800/40 backdrop-blur-sm rounded-xl px-5 py-3 border-2 border-amber-700/50 shadow-[0_4px_0_0_#451a03] transition-transform hover:scale-105">
+          <div className="glass-panel-light rounded-xl px-5 py-3 border border-slate-700/60 transition-transform hover:scale-105">
             <span className="text-2xl font-bold text-green-300">{completedTenses.length}/{tenses.length}</span>
-            <span className="text-amber-300/70 ml-2 text-sm">Tenses</span>
+            <span className="text-slate-400 ml-2 text-sm">Tenses</span>
           </div>
-          <div className="bg-amber-800/40 backdrop-blur-sm rounded-xl px-5 py-3 border-2 border-amber-700/50 shadow-[0_4px_0_0_#451a03] transition-transform hover:scale-105">
-            <span className="text-2xl font-bold text-blue-300">{getProgressPercentage()}%</span>
-            <span className="text-amber-300/70 ml-2 text-sm">Complete</span>
+          <div className="glass-panel-light rounded-xl px-5 py-3 border border-slate-700/60 transition-transform hover:scale-105">
+            <span className="text-2xl font-bold text-cyan-300">{getProgressPercentage()}%</span>
+            <span className="text-slate-400 ml-2 text-sm">Complete</span>
           </div>
           {/* Sound toggle */}
           <button
             onClick={() => { setSoundEnabled(!soundEnabled); sfx(playClick); }}
-            className="bg-amber-800/40 backdrop-blur-sm rounded-xl px-4 py-3 border-2 border-amber-700/50 shadow-[0_4px_0_0_#451a03] transition-transform hover:scale-105 text-xl"
+            className="glass-panel-light rounded-xl px-4 py-3 border border-slate-700/60 hover:border-cyan-500/50 transition-transform hover:scale-105 text-xl"
           >
             {soundEnabled ? '🔊' : '🔇'}
           </button>
         </div>
 
-        {/* Progress bar - Pencil style */}
+        {/* Progress bar — cyan→indigo gradient like the main page accents */}
         <div className="max-w-md mx-auto mb-10">
-          <div className="h-4 bg-amber-950/50 rounded-full overflow-hidden border-2 border-amber-800/50 shadow-inner">
+          <div className="h-4 bg-slate-900/80 rounded-full overflow-hidden border border-slate-700/60 shadow-inner">
             <div
-              className="h-full bg-gradient-to-r from-yellow-400 via-amber-400 to-orange-400 rounded-full transition-all duration-1000 relative"
+              className="h-full bg-gradient-to-r from-cyan-400 via-sky-400 to-indigo-500 rounded-full transition-all duration-1000 relative"
               style={{ width: `${getProgressPercentage()}%` }}
             >
               <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent"></div>
@@ -367,7 +365,7 @@ export default function App() {
             >
               <div className="flex items-center gap-3 mb-4">
                 <span className="text-3xl transform hover:scale-125 transition-transform">{getLevelIcon(level)}</span>
-                <h2 className="text-2xl font-bold text-white/90 font-serif">{getLevelLabel(level)} Tenses</h2>
+                <h2 className="font-display text-2xl font-bold text-white/90">{getLevelLabel(level)} Tenses</h2>
                 {levelCompleted && (
                   <span className="text-green-400 text-sm font-medium bg-green-400/10 px-3 py-1 rounded-full border border-green-500/30 animate-pulse">✓ Complete</span>
                 )}
@@ -388,11 +386,11 @@ export default function App() {
                       onClick={() => isUnlocked ? startLearning(tenseIndex) : undefined}
                       className={`${isUnlocked ? 'cursor-pointer' : 'cursor-not-allowed opacity-40'}`}
                     >
-                      <div className={`relative p-5 rounded-2xl border-2 transition-all duration-300 ${
+                      <div className={`relative p-5 rounded-2xl border transition-all duration-300 glass-card-interactive ${
                         isUnlocked
-                          ? `bg-gradient-to-br from-slate-800/90 to-slate-900/90 ${isCompleted ? 'border-green-500/50' : 'border-slate-600/50'} hover:border-white/30`
+                          ? `bg-gradient-to-b from-slate-900/90 to-slate-950/90 ${isCompleted ? 'border-green-500/50' : 'border-slate-700/60'} hover:border-cyan-400/60`
                           : 'bg-slate-900/60 border-slate-800/50'
-                      } ${cardHover === tense.id ? `shadow-lg shadow-indigo-500/20` : 'shadow-md shadow-black/30'}`}
+                      } ${cardHover === tense.id ? `shadow-xl shadow-cyan-500/20` : 'shadow-md shadow-black/30'}`}
                       style={{ transformStyle: 'preserve-3d' }}
                       >
                         {/* Card shine effect */}
@@ -441,13 +439,8 @@ export default function App() {
     const colors = getLevelColor(currentTense.level);
 
     return (
-      <div className="relative overflow-hidden" style={{
-        background: 'linear-gradient(180deg, #1a3a2a 0%, #0f2a1a 50%, #1a1a2e 100%)',
-      }}>
-        {/* Chalkboard texture */}
-        <div className="absolute inset-0 opacity-15" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h40v40H0V0zm1 1h38v38H1V1z' fill='%23ffffff' fill-opacity='0.03'/%3E%3C/svg%3E")`,
-        }}></div>
+      <div className="relative overflow-hidden bg-slate-950">
+        <SlideBackground />
 
         <div className="relative z-10 max-w-4xl mx-auto px-4 py-8">
           {/* Navigation */}
@@ -463,41 +456,32 @@ export default function App() {
           {/* Tense Title - Chalkboard header */}
           <div className="text-center mb-8 animate-fade-in">
             <div className="inline-block relative">
-              <h1 className="text-4xl md:text-5xl font-bold text-white/90 font-serif" style={{
-                textShadow: '2px 2px 4px rgba(0,0,0,0.5)',
-              }}>
+              <h1 className="font-display text-4xl md:text-5xl font-bold text-white text-glow">
                 📝 {currentTense.name}
               </h1>
-              <div className="absolute -bottom-1 left-0 right-0 h-[2px] bg-white/20"></div>
+              <div className="absolute -bottom-1 left-0 right-0 h-[2px] bg-gradient-to-r from-cyan-400 via-sky-400 to-indigo-400"></div>
             </div>
             <p className="text-slate-300 font-mono text-lg mt-3 bg-slate-800/50 inline-block px-4 py-1 rounded-lg border border-slate-700/50">
               {currentTense.formula}
             </p>
           </div>
 
-          {/* Explanation Card - 3D Notebook page */}
+          {/* Explanation Card — glass panel matching the landing page cards */}
           <Card3D hoverId="explanation">
-            <div className="bg-amber-50/5 backdrop-blur-sm border-2 border-amber-800/30 rounded-2xl p-6 mb-6 shadow-xl relative overflow-hidden">
-              {/* Notebook lines */}
-              <div className="absolute inset-0 opacity-10" style={{
-                backgroundImage: 'repeating-linear-gradient(transparent, transparent 31px, #8b5e3c 31px, #8b5e3c 32px)',
-              }}></div>
-              {/* Red margin line */}
-              <div className="absolute left-10 top-0 bottom-0 w-[2px] bg-red-400/20"></div>
-
+            <div className="glass-panel rounded-2xl p-6 mb-6 shadow-xl shadow-cyan-950/20 relative overflow-hidden border border-slate-700/60">
               <div className="relative">
-                <h2 className="text-xl font-bold text-emerald-300 mb-3 flex items-center gap-2 font-serif">
+                <h2 className="font-display text-xl font-bold text-emerald-300 mb-3 flex items-center gap-2">
                   <span>📖</span> Explanation
                 </h2>
-                <p className="text-slate-200 leading-relaxed text-lg pl-8">{currentTense.explanation}</p>
+                <p className="text-slate-200 leading-relaxed text-lg">{currentTense.explanation}</p>
               </div>
             </div>
           </Card3D>
 
           {/* Usage Card */}
           <Card3D hoverId="usage">
-            <div className="bg-slate-800/60 border-2 border-slate-600/30 rounded-2xl p-6 mb-6 shadow-xl">
-              <h2 className="text-xl font-bold text-green-300 mb-4 flex items-center gap-2 font-serif">
+            <div className="bg-slate-900/70 border border-slate-700/60 rounded-2xl p-6 mb-6 shadow-xl">
+              <h2 className="font-display text-xl font-bold text-green-300 mb-4 flex items-center gap-2">
                 <span>🎯</span> When to Use
               </h2>
               <ul className="space-y-3">
@@ -513,13 +497,13 @@ export default function App() {
 
           {/* Examples Card */}
           <Card3D hoverId="examples">
-            <div className="bg-slate-800/60 border-2 border-slate-600/30 rounded-2xl p-6 mb-6 shadow-xl">
-              <h2 className="text-xl font-bold text-purple-300 mb-4 flex items-center gap-2 font-serif">
+            <div className="bg-slate-900/70 border border-slate-700/60 rounded-2xl p-6 mb-6 shadow-xl">
+              <h2 className="font-display text-xl font-bold text-purple-300 mb-4 flex items-center gap-2">
                 <span>💡</span> Examples
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {currentTense.examples.map((ex, i) => (
-                  <div key={i} className="bg-slate-900/60 rounded-xl p-4 border border-slate-700/50 hover:border-purple-500/50 hover:bg-slate-900/80 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-purple-500/10 group">
+                  <div key={i} className="bg-slate-950/60 rounded-xl p-4 border border-slate-700/50 hover:border-cyan-500/50 hover:bg-slate-900/80 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-cyan-500/10 group">
                     <p className="text-slate-200 italic group-hover:text-white transition-colors">"{ex}"</p>
                   </div>
                 ))}
@@ -529,8 +513,8 @@ export default function App() {
 
           {/* Signal Words */}
           <Card3D hoverId="signals">
-            <div className="bg-slate-800/60 border-2 border-slate-600/30 rounded-2xl p-6 mb-8 shadow-xl">
-              <h2 className="text-xl font-bold text-yellow-300 mb-4 flex items-center gap-2 font-serif">
+            <div className="bg-slate-900/70 border border-slate-700/60 rounded-2xl p-6 mb-8 shadow-xl">
+              <h2 className="font-display text-xl font-bold text-yellow-300 mb-4 flex items-center gap-2">
                 <span>⚡</span> Signal Words
               </h2>
               <div className="flex flex-wrap gap-2">
@@ -556,14 +540,8 @@ export default function App() {
   };
 
   const renderQuiz = () => (
-    <div className="relative overflow-hidden" style={{
-      background: 'linear-gradient(180deg, #1a2a3a 0%, #0f1a2a 50%, #1a1a2e 100%)',
-    }}>
-      {/* Animated background */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-20 left-20 w-40 h-40 bg-blue-500 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-20 w-60 h-60 bg-purple-500 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-      </div>
+    <div className="relative overflow-hidden bg-slate-950">
+      <SlideBackground />
 
       {/* Confetti */}
       <Confetti active={showConfetti} count={30} onComplete={() => setShowConfetti(false)} />
@@ -598,10 +576,10 @@ export default function App() {
 
         {/* Question Card - 3D */}
         <Card3D hoverId="question">
-          <div className={`bg-slate-800/80 border-2 rounded-2xl p-8 mb-6 shadow-2xl transition-all duration-300 ${
+          <div className={`glass-panel rounded-2xl p-8 mb-6 shadow-2xl transition-all duration-300 ${
             shakeCard ? 'animate-shake border-red-500/50' :
             selectedAnswer === currentQuestion!.correctIndex ? 'border-green-500/50' :
-            selectedAnswer !== null ? 'border-red-500/30' : 'border-slate-600/50'
+            selectedAnswer !== null ? 'border-red-500/30' : 'border-slate-700/60'
           }`}>
             <p className="text-sm text-slate-400 mb-3 uppercase tracking-wider font-medium">Fill in the blank:</p>
             <p className="text-2xl font-medium leading-relaxed text-white/90">
@@ -628,13 +606,13 @@ export default function App() {
         {/* Options - 3D Buttons */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           {currentQuestion!.options.map((option, i) => {
-            let buttonClass = 'bg-gradient-to-b from-slate-700 to-slate-800 border-slate-600/50 hover:border-indigo-400/50 hover:from-slate-600 hover:to-slate-700 text-white shadow-[0_5px_0_0_#1e293b,0_7px_15px_rgba(0,0,0,0.3)] hover:shadow-[0_3px_0_0_#1e293b,0_5px_10px_rgba(0,0,0,0.4)]';
+            let buttonClass = 'bg-gradient-to-b from-slate-800/90 to-slate-900/90 border-slate-700/60 hover:border-cyan-400/60 hover:from-slate-700/90 hover:to-slate-800/90 text-white shadow-lg shadow-black/30 hover:shadow-cyan-500/20';
 
             if (selectedAnswer !== null) {
               if (i === currentQuestion!.correctIndex) {
-                buttonClass = 'bg-gradient-to-b from-green-500/30 to-green-600/30 border-green-500/70 text-green-200 shadow-[0_5px_0_0_#166534,0_0_20px_rgba(34,197,94,0.2)]';
+                buttonClass = 'bg-gradient-to-b from-green-500/30 to-green-600/30 border-green-500/70 text-green-200 shadow-[0_0_20px_rgba(34,197,94,0.2)]';
               } else if (i === selectedAnswer && i !== currentQuestion!.correctIndex) {
-                buttonClass = 'bg-gradient-to-b from-red-500/30 to-red-600/30 border-red-500/70 text-red-200 shadow-[0_5px_0_0_#991b1b,0_0_20px_rgba(239,68,68,0.2)]';
+                buttonClass = 'bg-gradient-to-b from-red-500/30 to-red-600/30 border-red-500/70 text-red-200 shadow-[0_0_20px_rgba(239,68,68,0.2)]';
               } else {
                 buttonClass = 'bg-slate-800/30 border-slate-800/30 opacity-40 text-slate-500 shadow-none';
               }
@@ -645,7 +623,7 @@ export default function App() {
                 key={i}
                 onClick={() => handleAnswer(i)}
                 disabled={selectedAnswer !== null}
-                className={`relative p-5 rounded-xl border-2 text-left font-medium transition-all duration-200 ${buttonClass} ${
+                className={`relative p-5 rounded-xl border text-left font-medium transition-all duration-200 ${buttonClass} ${
                   selectedAnswer === null ? 'cursor-pointer hover:-translate-y-1 active:translate-y-[3px] active:shadow-none' : 'cursor-default'
                 }`}
               >
@@ -700,14 +678,8 @@ export default function App() {
     const xpEarned = lastResult.score * 25 + (lastResult.score === lastResult.total ? 50 : 0);
 
     return (
-      <div className="relative overflow-hidden flex items-center justify-center min-h-[80vh]" style={{
-        background: 'linear-gradient(180deg, #1a2a3a 0%, #0f1a2a 50%, #1a1a2e 100%)',
-      }}>
-        {/* Background effects */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-1/4 left-1/4 w-60 h-60 bg-yellow-500 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-40 h-40 bg-purple-500 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '0.5s' }}></div>
-        </div>
+      <div className="relative overflow-hidden flex items-center justify-center min-h-[80vh] bg-slate-950">
+        <SlideBackground />
 
         <Confetti active={showConfetti} count={60} onComplete={() => setShowConfetti(false)} />
 
@@ -715,13 +687,13 @@ export default function App() {
           <div className="text-7xl mb-6 animate-bounce-in">
             {percentage === 100 ? '🏆' : percentage >= 75 ? '🎉' : percentage >= 50 ? '👍' : '📚'}
           </div>
-          <h1 className="text-4xl font-bold mb-2 font-serif text-white/90" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>
+          <h1 className="font-display text-4xl font-bold mb-2 text-white text-glow">
             {percentage === 100 ? 'Perfect Score!' : percentage >= 75 ? 'Great Job!' : percentage >= 50 ? 'Good Effort!' : 'Keep Practicing!'}
           </h1>
           <p className="text-slate-400 mb-6">{currentTense.name}</p>
 
           <Card3D hoverId="results">
-            <div className="bg-slate-800/80 border-2 border-slate-600/30 rounded-2xl p-8 mb-6 shadow-2xl">
+            <div className="glass-panel border-slate-700/60 rounded-2xl p-8 mb-6 shadow-2xl">
               <div className="text-6xl font-bold mb-3">
                 <span className={percentage >= 75 ? 'text-green-400' : percentage >= 50 ? 'text-yellow-400' : 'text-red-400'} style={{
                   textShadow: percentage >= 75 ? '0 0 20px rgba(34,197,94,0.5)' : percentage >= 50 ? '0 0 20px rgba(234,179,8,0.5)' : '0 0 20px rgba(239,68,68,0.5)',
@@ -776,23 +748,14 @@ export default function App() {
   };
 
   const renderComplete = () => (
-    <div className="relative overflow-hidden flex items-center justify-center min-h-[80vh]" style={{
-      background: 'linear-gradient(180deg, #2a1a3a 0%, #1a0f2a 50%, #1a1a2e 100%)',
-    }}>
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-1/3 left-1/3 w-80 h-80 bg-yellow-500 rounded-full blur-3xl animate-pulse"></div>
-      </div>
+    <div className="relative overflow-hidden flex items-center justify-center min-h-[80vh] bg-slate-950">
+      <SlideBackground />
 
       <Confetti active={showConfetti} count={80} onComplete={() => setShowConfetti(false)} />
 
       <div className="relative z-10 max-w-lg mx-auto px-4 text-center">
         <div className="text-8xl mb-6 animate-bounce-in">🎓</div>
-        <h1 className="text-5xl font-bold mb-4 font-serif" style={{
-          background: 'linear-gradient(to right, #fbbf24, #f59e0b, #d97706)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          textShadow: 'none',
-        }}>
+        <h1 className="font-display text-5xl font-bold mb-4 bg-gradient-to-r from-cyan-400 via-sky-400 to-indigo-400 bg-clip-text text-transparent">
           Congratulations!
         </h1>
         <p className="text-xl text-slate-300 mb-8">
@@ -800,7 +763,7 @@ export default function App() {
         </p>
 
         <Card3D hoverId="complete">
-          <div className="bg-slate-800/80 border-2 border-yellow-500/30 rounded-2xl p-8 mb-8 shadow-2xl shadow-yellow-500/10">
+          <div className="glass-panel border-yellow-500/30 rounded-2xl p-8 mb-8 shadow-2xl shadow-yellow-500/10">
             <p className="text-5xl font-bold text-yellow-400 mb-2" style={{ textShadow: '0 0 30px rgba(251,191,36,0.5)' }}>
               {totalXP} XP
             </p>

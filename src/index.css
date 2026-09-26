@@ -1,15 +1,21 @@
 @import "tailwindcss";
 
-@layer base {
-  :root {
-    --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    --font-display: 'Space Grotesk', system-ui, sans-serif;
-  }
+@theme {
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+}
 
+@layer base {
   body {
     font-family: var(--font-sans);
     overflow-x: hidden;
   }
+}
+
+/* Display heading font used across the landing page (Space Grotesk) */
+.font-display {
+  font-family: 'Space Grotesk', var(--font-sans);
+  letter-spacing: -0.01em;
 }
 
 /* ===== Tense Master Game Animations (ported from the standalone game) ===== */
