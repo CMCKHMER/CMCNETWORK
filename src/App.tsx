@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Navbar } from './components/Navbar';
+import { GameSection } from './components/GameSection';
 import { QuickDrawer } from './components/QuickDrawer';
 import { Hero } from './components/Hero';
 import { SocialProof } from './components/SocialProof';
@@ -75,6 +76,9 @@ export function App() {
 
         {/* Live Interactive Sandbox: Auto-Grader, Worksheet Generator & Roster */}
         <InteractiveShowcase />
+
+        {/* Tense Master Game Section (ported from the standalone "work space" game) */}
+        <GameSection onBackToLanding={() => scrollToSection('interactive-demo')} />
 
         {/* Core Features Bento Grid */}
         <FeaturesBento
